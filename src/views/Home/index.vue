@@ -6,11 +6,9 @@
       </template>
     </van-nav-bar>
     <van-tabs v-model="active" swipeable>
-      <van-tab :title="item.name" v-for="item in myChannels" :key="item.id"
-        >
-        <article-list :id="item.id"></article-list>
-        </van-tab
-      >
+      <van-tab :title="item.name" v-for="item in myChannels" :key="item.id">
+        <articleList :id="item.id"></articleList>
+      </van-tab>
 
       <span class="toutiao toutiao-gengduo1"></span>
     </van-tabs>
@@ -36,7 +34,7 @@ export default {
       try {
         const { data } = await getMyChannelAPI()
         this.myChannels = data.data.channels
-        console.log(this.myChannels)
+        // console.log(this.myChannels)
       } catch (e) {
         this.$toast.fail('获取频道失败，请刷新')
       }
@@ -48,6 +46,10 @@ export default {
 <style scoped lang="less">
 .navbar {
   background-color: #3296fa;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 99;
   :deep(.van-nav-bar__title) {
     max-width: unset;
   }
@@ -75,6 +77,9 @@ export default {
 
 /* tabs导航条样式 */
 :deep(.van-tabs__wrap) {
+  position: sticky;
+  top: 92px;
+  z-index: 99;
   padding-right: 66px;
 
   .van-tabs__nav {
@@ -121,5 +126,11 @@ export default {
     width: 1px;
     background-image: url('~@/assets/images/gradient-gray-line.png');
   }
+}
+:deep(.van-tabs__content) {
+  // 符号的两侧必须由空格
+  max-height: calc(100vh - 92px - 88px - 100px);
+  padding-bottom: 100px;
+  overflow: auto;
 }
 </style>
