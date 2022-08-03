@@ -55,7 +55,6 @@ export default {
         const { data } = await getArticleAPI(this.id, +new Date())
         this.articles = data.data.results
         this.pre_timestamp = data.data.pre_timestamp
-        console.log(data.data.results)
       } catch (error) {
         this.$toast.fail('请刷新，重新获取数据')
       }

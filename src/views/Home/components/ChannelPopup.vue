@@ -9,13 +9,15 @@
 
     <van-grid gutter="0.2rem">
       <van-grid-item
-        v-for="value in 6"
-        :key="value"
-        text="文字"
+        v-for="(item, index) in myChannels"
+        :key="item.id"
+        :text="item.name"
         class="mychannel-item"
+        :class="['mychannel-item', { active: item.name === '推荐' }]"
+        @click="changeActive(index,item)"
       >
         <template #icon>
-          <van-icon name="cross" v-show="isEdit" />
+          <van-icon name="cross" v-show="isEdit && item.name !== '推荐'" />
         </template>
       </van-grid-item>
     </van-grid>
@@ -24,21 +26,60 @@
     <van-cell title="推荐频道"> </van-cell>
     <van-grid gutter="0.2rem">
       <van-grid-item
-        v-for="value in 6"
-        :key="value"
-        text="文字"
+        v-for="item in recommendChannels"
+        :key="item.id"
+        :text="item.name"
         icon="plus"
         class="recommend-item"
+        @click="$emit('add-channel', item)"
       />
     </van-grid>
   </div>
 </template>
 
 <script>
+import { getAllChannels as getAllChannelsAPI } from '@/api'
 export default {
   data() {
     return {
-      isEdit: false
+      isEdit: false,
+      allChannels: []
+    }
+  },
+  props: {
+    myChannels: {
+      type: Array,
+      required: true
+    }
+  },
+  created() {
+    this.getAllChannels()
+  },
+  computed: {
+    recommendChannels() {
+      return this.allChannels.filter((aItem) => {
+        return !this.myChannels.find((mItem) => mItem.id === aItem.id)
+      })
+    }
+  },
+  methods: {
+    async getAllChannels() {
+      try {
+        const { data } = await getAllChannelsAPI()
+        this.allChannels = data.data.channels
+        console.log(this.allChannels)
+      } catch (error) {
+        this.$toast.fail('获取频道失败，请刷新重试')
+      }
+    },
+    changeActive(index, item) {
+      if (!this.isEdit) {
+        this.$parent.$parent.show = false
+        this.$emit('change-active', index)
+      } else {
+        if (item.name === '推荐') return
+        this.$emit('del-channel', item.id)
+      }
     }
   }
 }
@@ -69,6 +110,12 @@ export default {
     :deep(.van-grid-item__icon) {
       font-size: 40px;
     }
+    :deep(.van-grid-item__icon) {
+      font-size: 20px;
+    }
+    :deep(.van-grid-item__text) {
+      margin: 0;
+    }
   }
 
   :deep(.mychannel-item) {
@@ -82,11 +129,16 @@ export default {
       position: absolute;
       right: 0;
       top: 0;
-      font-size: 30px;
+      font-size: 25px;
       transform: translate(45%, -50%);
       border: 2px solid #000;
       border-radius: 50%;
       z-index: 300;
+    }
+  }
+  .active {
+    :deep(.van-grid-item__text) {
+      color: red;
     }
   }
 }

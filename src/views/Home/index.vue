@@ -16,17 +16,28 @@
     <van-popup
       v-model="show"
       position="bottom"
-      :style="{ height: '100%'}"
+      :style="{ height: '100%' }"
       closeable
       close-icon-position="top-left"
     >
-      <ChannelPopup></ChannelPopup>
+      <ChannelPopup
+        :myChannels="myChannels"
+        @change-active="active = $event"
+        @del-channel="delChannel"
+        @add-channel="addChannel"
+      ></ChannelPopup>
     </van-popup>
   </div>
 </template>
 
 <script>
-import { getMyChannel as getMyChannelAPI } from '@/api'
+import {
+  getMyChannel as getMyChannelAPI,
+  delChannel,
+  addChannel,
+  setMyChannelsToLocal
+} from '@/api'
+  // getMyChannelByLocal
 import ArticleList from './components/ArticleList.vue'
 import ChannelPopup from './components/ChannelPopup.vue'
 export default {
@@ -41,14 +52,49 @@ export default {
   mounted() {
     this.getMyChannel()
   },
+  computed: {
+    isLogin() {
+      return !!this.$storage.state.tokenObj.token
+    }
+  },
   methods: {
     async getMyChannel() {
       try {
         const { data } = await getMyChannelAPI()
         this.myChannels = data.data.channels
-        // console.log(this.myChannels)
       } catch (e) {
         this.$toast.fail('获取频道失败，请刷新')
+      }
+    },
+    async delChannel(id) {
+      this.$toast.loading({
+        message: '正在删除，请稍后...',
+        forbidClick: true
+      })
+      try {
+        const newChannels = (this.myChannels = this.myChannels.filter(
+          (item) => item.id !== id
+        ))
+        if (this.isLogin) {
+          await delChannel(id)
+        } else {
+          setMyChannelsToLocal(newChannels)
+        }
+        this.myChannels = newChannels
+        this.$toast.success('频道删除成功')
+      } catch (error) {
+        this.$toast.fail('频道删除失败，请重试')
+      }
+    },
+
+    async addChannel(channel) {
+      this.$toast.loading('正在添加，请稍后')
+      try {
+        await addChannel(channel.id, this.myChannels.length)
+        this.myChannels.push(channel)
+        this.$toast.success('频道添加成功')
+      } catch (error) {
+        this.$toast.fail('频道添加失败，请重试')
       }
     }
   }
