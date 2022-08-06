@@ -20,3 +20,24 @@ export const getCodeApi = (mobile, text) => {
     data: { mobile, text }
   })
 }
+
+export const getUserInfo = () => {
+  return request({
+    url: '/v1_0/user/profile'
+  })
+}
+
+/**
+ *上传头像
+ * @param {*} file
+ * @returns promise
+ */
+export const uploadAvator = (file) => {
+  const fm = new FormData()
+  fm.append('photo', file)
+  return request({
+    url: '/v1_0/user/photo',
+    method: 'PATCH',
+    data: fm
+  })
+}
