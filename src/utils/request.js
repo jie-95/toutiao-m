@@ -3,7 +3,7 @@ import axios from 'axios'
 
 const request = axios.create({
   baseURL: 'http://toutiao.itheima.net',
-  timeout: 3000
+  timeout: 30000
 })
 
 // 添加请求拦截器
@@ -13,7 +13,7 @@ request.interceptors.request.use(
     if (token) {
       config.headers.Authorization = 'Bearer ' + token
     }
-    console.log(config)
+    // console.log(config)
     return config
   },
   function (error) {

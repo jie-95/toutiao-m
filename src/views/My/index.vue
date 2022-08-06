@@ -2,8 +2,14 @@
   <div>
     <!-- 头部 -->
     <header>
-      <div class="login" v-if="isLogin">登陆后的</div>
-      <div class="logout" v-else>未登陆的</div>
+      <div class="login" v-if="isLogin">
+        登陆后的
+        <button @click="$router.push('/user')">编辑资料</button>
+      </div>
+      <div class="logout" v-else>
+        未登陆的
+        <button @click="$router.push('/login')">去登陆</button>
+      </div>
     </header>
 
     <!-- 中间 -->
