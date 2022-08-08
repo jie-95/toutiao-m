@@ -1,0 +1,9 @@
+<van-popup v-model="show" position="bottom" :style="{ height: '30%' }">
+        <van-nav-bar
+          title="标题"
+          left-text="取消"
+          right-text="确认"
+          @click-left="show = false"
+          @click-right="onClickRight"
+        />
+      </van-popup>

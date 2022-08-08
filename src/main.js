@@ -2,6 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import dayjs from 'dayjs'
 
 // 引入vant
 import Vant from 'vant'
@@ -16,5 +17,6 @@ Vue.config.productionTip = false
 new Vue({
   router,
   store,
+  dayjs,
   render: (h) => h(App)
 }).$mount('#app')

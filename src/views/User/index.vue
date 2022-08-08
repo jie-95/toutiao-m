@@ -1,7 +1,12 @@
 <template>
   <div>
     <!-- 顶部导航 -->
-    <van-nav-bar title="个人信息" left-arrow @click-left="$router.back()" />
+    <van-nav-bar
+      class="top-nav"
+      title="个人信息"
+      left-arrow
+      @click-left="$router.back()"
+    />
     <!-- 用户信息 -->
     <van-cell-group>
       <van-cell title="头像" value="内容" is-link @click="$refs.file.click()">
@@ -19,12 +24,22 @@
           accept=".png,.jpg,.jpeg"
           @change="selectPhoto"
         />
+        <!-- 昵称  -->
       </van-cell>
-      <van-cell title="昵称" is-link>{{ userInfo.name }}</van-cell>
-      <van-cell title="性别" is-link>{{
-        userInfo.gender == 1 ? '男' : '女'
+      <van-cell title="昵称" is-link @click="isNicks">{{
+        userInfo.name
       }}</van-cell>
-      <van-cell title="生日" is-link>{{ userInfo.birthday }}</van-cell>
+      <NickName :isNick123="isNick" :nname="userInfo.name"></NickName>
+      <!-- 性别 -->
+      <van-cell title="性别" is-link @click="isSex = true">{{
+        userInfo.gender == 1 ? '女' : '男'
+      }}</van-cell>
+      <Sex :isSex1="isSex"></Sex>
+      <!-- // 生日 -->
+      <van-cell title="生日" is-link @click="isBirthDay = true">{{
+        userInfo.birthday
+      }}</van-cell>
+      <Birthday :isBirth="isBirthDay"></Birthday>
     </van-cell-group>
     <van-popup
       v-model="isAvator"
@@ -32,7 +47,11 @@
       closeable
       class="avator-popup"
     >
-      <updateAvator :photo="photo" @upload-avator="userInfo.photo = $event" v-if="isAvator"/>
+      <updateAvator
+        :photo="photo"
+        @upload-avator="userInfo.photo = $event"
+        v-if="isAvator"
+      />
     </van-popup>
   </div>
 </template>
@@ -41,19 +60,37 @@
 import { resolveToBase64 } from '@/utils/index'
 import updateAvator from '@/views/User/components/UpdataAvator.vue'
 import { getUserInfo } from '@/api'
+import Sex from '@/views/User/components/Sex'
+import NickName from '@/views/User/components/NickName'
+import Birthday from '@/views/User/components/Birthday'
 export default {
   name: 'user',
   data() {
     return {
+      show: false,
       userInfo: {},
       isAvator: false,
-      photo: ''
+      photo: '',
+      isNick: false,
+      isSex: false,
+      isBirthDay: false,
+      sendName: ''
     }
   },
   components: {
-    updateAvator
+    updateAvator,
+    Sex,
+    Birthday,
+    NickName
   },
   methods: {
+    // 头像
+    showPopup() {
+      this.show = true
+    },
+    onClickRight() {
+      this.$Toast('按钮')
+    },
     async getUserInfo() {
       try {
         const { data } = await getUserInfo()
@@ -82,6 +119,9 @@ export default {
       this.photo = url
       e.target.value = ''
       this.isAvator = true
+    },
+    isNicks() {
+      this.isNick = true
     }
   },
   created() {
@@ -91,12 +131,12 @@ export default {
 </script>
 
 <style scoped lang="less">
-:deep(.van-nav-bar) {
+.top-nav {
   background-color: #3296fa;
-  .van-nav-bar__title {
+  :deep(.van-nav-bar__title) {
     color: #fff;
   }
-  .van-icon {
+  :deep(.van-icon) {
     color: #fff;
   }
 }

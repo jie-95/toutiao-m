@@ -41,3 +41,17 @@ export const uploadAvator = (file) => {
     data: fm
   })
 }
+
+export const userInfo = () => {
+  return request({
+    url: '/v1_0/user'
+  })
+}
+export const changeUserInfo = (body) => {
+  return request({
+    url: '/v1_0/user/profile',
+    method: 'PATCH',
+
+    data: body
+  })
+}
