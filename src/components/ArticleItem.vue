@@ -1,5 +1,5 @@
 <template>
-  <van-cell-group>
+  <van-cell-group @click="artInfo(articleInfo.art_id)">
     <!-- 没有图片 -->
     <van-cell
       v-if="articleInfo.cover.type === 0"
@@ -33,6 +33,9 @@
 
 <script>
 export default {
+  data() {
+    return {}
+  },
   props: {
     articleInfo: {
       type: Object,
@@ -43,6 +46,18 @@ export default {
     label() {
       const art = this.articleInfo
       return `${art.aut_name} ${art.comm_count}评论${art.pubdate}`
+    }
+  },
+
+  methods: {
+    artInfo(val) {
+      console.log(val)
+      this.$router.push({
+        name: 'articles',
+        params: {
+          artId: val
+        }
+      })
     }
   }
 }

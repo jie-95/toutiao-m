@@ -2,7 +2,13 @@
   <div>
     <van-nav-bar class="navbar">
       <template #title>
-        <van-button round class="search-btn" icon="search" @click="$router.push('/search')">搜索</van-button>
+        <van-button
+          round
+          class="search-btn"
+          icon="search"
+          @click="$router.push('/search')"
+          >搜索</van-button
+        >
       </template>
     </van-nav-bar>
     <van-tabs v-model="active" swipeable>
@@ -12,7 +18,6 @@
 
       <span class="toutiao toutiao-gengduo1" @click="show = true">三</span>
     </van-tabs>
-    <van-cell is-link>展示弹出层</van-cell>
     <van-popup
       v-model="show"
       position="bottom"
@@ -37,7 +42,7 @@ import {
   addChannel,
   setMyChannelsToLocal
 } from '@/api'
-  // getMyChannelByLocal
+// getMyChannelByLocal
 import ArticleList from './components/ArticleList.vue'
 import ChannelPopup from './components/ChannelPopup.vue'
 export default {
@@ -66,6 +71,7 @@ export default {
         this.$toast.fail('获取频道失败，请刷新')
       }
     },
+
     async delChannel(id) {
       this.$toast.loading({
         message: '正在删除，请稍后...',

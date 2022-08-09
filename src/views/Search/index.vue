@@ -8,7 +8,7 @@
         placeholder="请输入搜索关键词"
         show-action
         class="search"
-        @search="onSearch"
+        @search="onSearch(keywords)"
         @focus="onSearchFocus"
         @cancel="$router.back()"
       />
@@ -17,11 +17,19 @@
     <!-- <SearchHistory />
     <SearchResult />
     <SearchSuggestion /> -->
-    <component :is="componentName" :keywords="keywords"></component>
+    <component
+      :is="componentName"
+      :keywords="keywords"
+      :searchResultsList="searchResultsList"
+      @sendSerch="getSearchResults"
+    ></component>
   </div>
 </template>
 
 <script>
+// import { get } from '@/utils/storage'
+import Storage from '@/utils/storage'
+import { getSearchResultsAPI } from '@/api'
 import SearchHistory from './components/SearchHistory.vue'
 import SearchResult from './components/SearchResult.vue'
 import SearchSuggestion from './components/SearchSuggestion.vue'
@@ -30,7 +38,9 @@ export default {
   data() {
     return {
       keywords: '',
-      isShowComponentName: false
+      isShowComponentName: false,
+      searchResultsList: [],
+      searchHistoryList: []
     }
   },
   components: {
@@ -51,12 +61,24 @@ export default {
     }
   },
   methods: {
-    onSearch() {
-      console.log('onSearch了 onSearch了')
-      this.isShowComponentName = true
+    onSearch(val) {
+      console.log(val)
+      this.getSearchResults(this.keywords)
+      this.searchHistoryList.push(val)
+      Storage.set('history', this.searchHistoryList)
     },
     onSearchFocus() {
       this.isShowComponentName = false
+    },
+    async getSearchResults(val) {
+      const {
+        data: { data: results }
+      } = await getSearchResultsAPI(val)
+      console.log(results.results)
+      this.searchResultsList = results.results
+      // 为了改变回车键搜索状态
+      this.isShowComponentName = true
+      // 为了改变回车键搜索状态
     }
   }
 }
