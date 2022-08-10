@@ -1,21 +1,33 @@
 <template>
   <!-- 评论区 -->
   <div>
-    <van-cell class="comment" v-for="item in comments" :key="item.com_id">
-      <img :src="`${item.aut_photo}`" alt="" />
-      <div class="comment-right">
-        <div class="top">
-          <span class="left">{{item.aut_name}}</span>
-          <span class="right"><van-icon name="good-job-o" /> {{item.like_count === 0? '赞': item.like_count}}</span>
-        </div>
-        <div class="center">{{item.content}}</div>
-        <div class="foot">
-          <span>{{item.pubdate}}</span>
+    <van-list
+      v-model="loading"
+      :finished="finished"
+      finished-text="没有更多了"
+      @load="onLoad"
+    >
+      <van-cell class="comment" v-for="item in comments" :key="item.com_id">
+        <img :src="`${item.aut_photo}`" alt="" />
+        <div class="comment-right">
+          <div class="top">
+            <span class="left">{{ item.aut_name }}</span>
+            <span class="right"
+              ><van-icon name="good-job-o" />
+              {{ item.like_count === 0 ? '赞' : item.like_count }}</span
+            >
+          </div>
+          <div class="center">{{ item.content }}</div>
+          <div class="foot">
+            <span>{{ item.pubdate }}</span>
 
-          <button class="btn">回复1</button>
+            <button @click="answer(item.com_id, item)" class="btn">
+              回复{{ item.reply_count }}
+            </button>
+          </div>
         </div>
-      </div>
-    </van-cell>
+      </van-cell>
+    </van-list>
   </div>
   <!-- /评论区 -->
 </template>
@@ -25,7 +37,10 @@ import { getCommentsAPI } from '@/api'
 export default {
   data() {
     return {
-      comments: ''
+      comments: '',
+      loading: false,
+      finished: false,
+      total: ''
     }
   },
   props: {
@@ -37,17 +52,32 @@ export default {
   methods: {
     async getComments() {
       const {
-        data: {
-          data: { results }
-        }
-      } = await getCommentsAPI({ type: 'a', source: this.artId })
-      console.log(results)
-      this.comments = results
+        data: { data }
+      } = await getCommentsAPI({
+        type: 'a',
+        source: this.artId
+      })
+      console.log(data)
+      this.comments = data.results
+      this.total = data.total_count
+      console.log(this.total)
+      this.$parent.total = this.total
+    },
+    onLoad() {},
+    answer(comId, item) {
+      // console.log(comId)
+      this.$bus.$emit('isMask', true, comId, item)
+    },
+    // 添加新增评论数据
+    pushNewObj(newObj) {
+      this.comments.unshift(newObj)
     }
   },
   mounted() {
     console.log(this.artId)
     this.getComments()
+    console.log(this.total)
+    this.$bus.$on('newObj', this.pushNewObj)
   }
 }
 </script>

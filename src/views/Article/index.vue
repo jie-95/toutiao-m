@@ -75,34 +75,61 @@
 
     <!-- 底部区域 -->
     <div class="article-bottom">
-      <van-button class="comment-btn" type="default" round size="small"
+      <van-button
+        @click="write"
+        class="comment-btn"
+        type="default"
+        round
+        size="small"
         >写评论</van-button
       >
-      <van-icon name="comment-o" info="123" color="#777" />
-      <van-icon color="#777" name="star-o" />
-      <van-icon color="#777" name="good-job-o" />
+      <van-icon name="comment-o" :info="total" color="#777" />
+      <i @click="collect">
+        <van-icon v-if="iconCollet" color="#777" name="star-o" />
+        <van-icon v-else color="#ff9632" name="star" />
+      </i>
+      <i @click="favor">
+        <van-icon v-if="iconFavor" color="#777" name="good-job-o" />
+        <van-icon v-else color="#ff9632" name="good-job" />
+      </i>
+      <!-- <van-icon color="#777" name="good-job-o" />
+      <van-icon name="good-job" /> -->
       <van-icon name="share" color="#777777"></van-icon>
     </div>
     <!-- /底部区域 -->
+
+    <!-- 回复蒙层 -->
+    <Answer :artId="art_id"></Answer>
+    <!-- /回复蒙层 -->
+    <WriteMessage :isShow="isShowWriteMsg" :artId="art_id"></WriteMessage>
   </div>
 </template>
 
 <script>
+import WriteMessage from '@/components/WriteMessage.vue'
 import Comment from '@/components/Comment.vue'
+import Answer from '@/components/Answer.vue'
 import 'github-markdown-css/github-markdown.css'
 import { getArtAPI } from '@/api'
 export default {
-  name: 'ArticleIndex',
-  components: {
-    Comment
-  },
-  props: {},
   data() {
     return {
       art: {},
-      art_id: ''
+      art_id: '',
+      isShowWriteMsg: false,
+      total: '',
+      iconCollet: true,
+      iconFavor: true
     }
   },
+
+  name: 'ArticleIndex',
+  components: {
+    Comment,
+    Answer,
+    WriteMessage
+  },
+  props: {},
 
   computed: {},
   watch: {},
@@ -117,8 +144,19 @@ export default {
       const {
         data: { data }
       } = await getArtAPI(this.$route.params.artId)
-      // console.log(data)
+      console.log(data)
       this.art = data
+    },
+    write() {
+      console.log('写评论')
+      this.isShowWriteMsg = true
+    },
+    // 字体图标控制
+    collect() {
+      this.iconCollet = !this.iconCollet
+    },
+    favor() {
+      this.iconFavor = !this.iconFavor
     }
   }
 }

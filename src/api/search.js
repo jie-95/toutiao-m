@@ -19,15 +19,3 @@ export const getArtAPI = (q) => {
     url: '/v1_0/articles/' + q
   })
 }
-
-/**
- * 获取文章评论
- * @param {*} data
- * @returns
- */
-export const getCommentsAPI = (params) => {
-  return request({
-    url: '/v1_0/comments',
-    params
-  })
-}
