@@ -6,7 +6,7 @@
       position="bottom"
       :style="{ height: '100%' }"
     >
-      <van-nav-bar title="标题" left-arrow @click-left="onClickLeft" />
+      <van-nav-bar title="评论详情" left-arrow @click-left="onClickLeft" />
       <van-cell class="comment">
         <img :src="`${comments.aut_photo}`" alt="" />
         <div class="comment-right">
@@ -45,25 +45,37 @@
           <div class="foot">
             <span>{{ item.pubdate }}</span>
 
-            <button @click="btn" class="btn">
-              回复{{ item.reply_count }}
-            </button>
+            <button @click="btn" class="btn">回复{{ item.reply_count }}</button>
           </div>
         </div>
       </van-cell>
+      <!-- ========================================== -->
+      <WriteMessage
+        @changeIsShow="changeIsShow"
+        :isShow="isShowWriteMsg"
+        :artId="comId"
+      ></WriteMessage>
+      <div class="answerBtn">
+        <van-button class="btn" @click="answerBtn" round type="default"
+          >评论</van-button
+        >
+      </div>
     </van-popup>
     <!-- 蒙层 -->
   </div>
 </template>
 
 <script>
+import WriteMessage from '@/components/WriteMessage.vue'
 import { getCommentsAPI } from '@/api'
 export default {
   data() {
     return {
       comments: '',
       isAnswerMask: false,
-      answer: ''
+      answer: {},
+      isShowWriteMsg: false,
+      comId: ''
     }
   },
   props: {
@@ -71,6 +83,9 @@ export default {
       type: String || Number,
       required: true
     }
+  },
+  components: {
+    WriteMessage
   },
 
   methods: {
@@ -83,25 +98,41 @@ export default {
     },
     // 获取评论的评论
     async getComments(val) {
-      const {
-        data: { data: results }
-      } = await getCommentsAPI({
-        type: 'c',
-        source: val
-      })
-      this.answer = results.results
-      // console.log(this.answer)
+      try {
+        const {
+          data: { data: results }
+        } = await getCommentsAPI({
+          type: 'c',
+          source: val
+        })
+        this.answer = results.results
+        this.$toast.success('评论详情获取成功')
+      } catch (error) {
+        this.$toast.fail('评论详情获取失败')
+      }
     },
     // 获取评论的评论
     chanageisMask(val, comId, item) {
       this.isAnswerMask = val
       this.getComments(comId)
+      this.comId = comId
       // console.log(item)
       this.comments = item
+    },
+    answerBtn() {
+      // console.log('评论的评论')
+      this.isShowWriteMsg = true
+    },
+    pushNew(newObj) {
+      this.answer.unshift(newObj)
+    },
+    changeIsShow(val) {
+      this.isShowWriteMsg = val
     }
   },
   mounted() {
     this.$bus.$on('isMask', this.chanageisMask)
+    this.$bus.$on('newObj', this.pushNew)
   },
   beforeDestroy() {
     this.$bus.$off('isMask')
@@ -168,6 +199,21 @@ export default {
         line-height: 48px;
       }
     }
+  }
+}
+.answerBtn {
+  position: fixed;
+  bottom: 0px;
+  left: 0;
+  width: 100%;
+  height: 86px;
+  background-color: #3296fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .btn {
+    width: 75%;
+    height: 68px;
   }
 }
 

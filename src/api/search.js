@@ -13,9 +13,3 @@ export const getSearchSuggestionListAPI = (q) => {
     params: { q }
   })
 }
-
-export const getArtAPI = (q) => {
-  return request({
-    url: '/v1_0/articles/' + q
-  })
-}

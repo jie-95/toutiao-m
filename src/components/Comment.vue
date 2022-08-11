@@ -51,17 +51,21 @@ export default {
   },
   methods: {
     async getComments() {
-      const {
-        data: { data }
-      } = await getCommentsAPI({
-        type: 'a',
-        source: this.artId
-      })
-      console.log(data)
-      this.comments = data.results
-      this.total = data.total_count
-      console.log(this.total)
-      this.$parent.total = this.total
+      try {
+        const {
+          data: { data }
+        } = await getCommentsAPI({
+          type: 'a',
+          source: this.artId
+        })
+        console.log(data)
+        this.comments = data.results
+        this.total = data.total_count
+        // console.log(this.total)
+        this.$parent.total = this.total
+      } catch (error) {
+        this.$toast.fail('评论获取失败')
+      }
     },
     onLoad() {},
     answer(comId, item) {
@@ -74,9 +78,9 @@ export default {
     }
   },
   mounted() {
-    console.log(this.artId)
+    // console.log(this.artId)
     this.getComments()
-    console.log(this.total)
+    // console.log(this.total)
     this.$bus.$on('newObj', this.pushNewObj)
   }
 }

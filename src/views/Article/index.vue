@@ -83,15 +83,31 @@
         size="small"
         >写评论</van-button
       >
-      <van-icon name="comment-o" :info="total" color="#777" />
+      <i><van-icon name="comment-o" :badge="art.comm_count" color="#777" /></i>
+      <!-- ===========收藏============ -->
       <i @click="collect">
-        <van-icon v-if="iconCollet" color="#777" name="star-o" />
-        <van-icon v-else color="#ff9632" name="star" />
+        <van-icon v-if="isCollect" color="#ff9632" name="star" />
+        <van-icon v-else color="#777" name="star-o" />
       </i>
+      <!-- /===========收藏============ -->
+      <!-- ==========点赞============== -->
       <i @click="favor">
-        <van-icon v-if="iconFavor" color="#777" name="good-job-o" />
-        <van-icon v-else color="#ff9632" name="good-job" />
+        <van-icon
+          v-if="art.attitude == 0"
+          color="#777"
+          name="good-job-o"
+          :badge="like"
+        />
+        <van-icon
+          v-else-if="art.attitude == 1"
+          color="#ff9632"
+          name="good-job"
+          :badge="like"
+        />
+        <van-icon v-else name="good-job" :badge="like" />
       </i>
+      <!-- /==========点赞============== -->
+
       <!-- <van-icon color="#777" name="good-job-o" />
       <van-icon name="good-job" /> -->
       <van-icon name="share" color="#777777"></van-icon>
@@ -101,7 +117,11 @@
     <!-- 回复蒙层 -->
     <Answer :artId="art_id"></Answer>
     <!-- /回复蒙层 -->
-    <WriteMessage :isShow="isShowWriteMsg" :artId="art_id"></WriteMessage>
+    <WriteMessage
+      @changeIsShow="changeIsShow"
+      :isShow="isShowWriteMsg"
+      :artId="art_id"
+    ></WriteMessage>
   </div>
 </template>
 
@@ -110,16 +130,26 @@ import WriteMessage from '@/components/WriteMessage.vue'
 import Comment from '@/components/Comment.vue'
 import Answer from '@/components/Answer.vue'
 import 'github-markdown-css/github-markdown.css'
-import { getArtAPI } from '@/api'
+import {
+  getArtAPI,
+  getLikingsAPI,
+  isShouCangAPI,
+  unCollect,
+  unLikingsAPI,
+  nomalLikeAPI
+} from '@/api'
 export default {
   data() {
     return {
       art: {},
       art_id: '',
       isShowWriteMsg: false,
+      // 评论数量
       total: '',
-      iconCollet: true,
-      iconFavor: true
+      // 点赞数量
+      like: '',
+      // 收藏状态
+      isCollect: ''
     }
   },
 
@@ -141,23 +171,83 @@ export default {
   },
   methods: {
     async getArticle() {
-      const {
-        data: { data }
-      } = await getArtAPI(this.$route.params.artId)
-      console.log(data)
-      this.art = data
+      this.$toast.loading('文章加载中')
+      try {
+        const {
+          data: { data }
+        } = await getArtAPI(this.$route.params.artId)
+        console.log(data)
+        this.art = data
+        this.isCollect = data.is_collected
+        this.like = data.like_count
+        this.like = data.like_count
+        this.$toast.success('文章加载成功')
+      } catch (error) {
+        this.$toast.fail('文章加载失败，请重试')
+      }
+    },
+    changeIsShow(val) {
+      this.isShowWriteMsg = val
     },
     write() {
       console.log('写评论')
       this.isShowWriteMsg = true
     },
     // 字体图标控制
-    collect() {
-      this.iconCollet = !this.iconCollet
+    // 收藏
+    async collect() {
+      console.log(this.art.is_collected)
+      if (this.art.is_collected === false) {
+        // 收藏
+        try {
+          console.log(this.art_id)
+          const res = await isShouCangAPI({ target: this.art_id })
+          console.log(res)
+          this.isCollect = true
+          // console.log();
+        } catch (error) {
+          console.log(error)
+        }
+      } else {
+        // 取消收藏
+        try {
+          console.log(this.art_id)
+          await unCollect(this.art_id)
+          this.isCollect = false
+        } catch (error) {
+          console.log(error)
+        }
+      }
     },
-    favor() {
-      this.iconFavor = !this.iconFavor
+    // 收藏
+    // 点赞
+    async favor() {
+      if (this.art.attitude === 0) {
+        // 喜欢
+        await getLikingsAPI({ target: this.art_id })
+        // const a = await getArtAPI(this.$route.params.artId)
+        // console.log(a)
+        this.art.attitude = 1
+      } else if (this.art.attitude === 1) {
+        // 不喜欢
+        try {
+          await unLikingsAPI({ target: this.art_id })
+          this.art.attitude = -1
+        } catch (error) {
+          console.log(error)
+        }
+      } else {
+        // 取消不喜欢
+        try {
+          await nomalLikeAPI(this.art_id)
+          this.art.attitude = 0
+        } catch (error) {
+          console.log(error)
+        }
+      }
     }
+
+    // 点赞
   }
 }
 </script>

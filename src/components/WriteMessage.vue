@@ -52,23 +52,25 @@ export default {
   },
   methods: {
     changeIsShow() {
-      this.$parent.isShowWriteMsg = false
+      // console.log(this)
+      // this.$parent.isShowWriteMsg = false
+      this.$emit('changeIsShow', false)
     },
     sendMsg() {
       this.isShowWriteMsg = false
-      console.log(this.value)
+      this.$parent.isShowWriteMsg = false
+
       this.sendComment()
       this.value = ''
     },
     async sendComment() {
-      console.log(123)
       const {
         data: { data }
       } = await sendCommentsAPI({
         target: this.artId,
         content: this.value
       })
-      console.log(data.new_obj)
+      // console.log(data.new_obj)
       this.newComment = data.new_obj
       this.$bus.$emit('newObj', this.newComment)
     }
